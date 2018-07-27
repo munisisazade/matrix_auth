@@ -25,7 +25,9 @@ SECRET_KEY = '4de5!!oq_tadrxugb=8pb=qo2bg2b7orfs0lp%3bjck$@btb$x'
 DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
-
+INTERNAL_IPS = ['127.0.0.1']
+# Custom Django User
+AUTH_USER_MODEL = "base_user.MyUser"
 # Application definition
 
 INSTALLED_APPS = [
@@ -36,8 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_cleanup',
+    'base_user.apps.BaseUserConfig',
     'account.apps.AccountConfig',
-
 ]
 
 MIDDLEWARE = [

@@ -7,9 +7,13 @@ from django.contrib.auth import login as login_user
 from django.contrib.auth import authenticate
 # from django.contrib.auth.forms import AuthenticationForm
 from django.http import HttpResponse
+from faker import Faker
+from django.db.models import Q
+
 
 
 # Create your views here.
+from account.models import Workers
 
 
 def login(request):
@@ -56,6 +60,26 @@ def register(request):
         return render(request, "register.html", context)
 
 
-@login_required(login_url='/')
 def hello(request):
-    return render(request, "private.html", context={})
+    context = {}
+    query = request.GET.get('q', False)
+    context['query'] = query
+    if query:
+        context['result'] = Workers.objects.filter(
+            Q(first_name__icontains=query)
+            | Q(last_name__icontains=query)
+        )
+    return render(request, "private.html", context)
+
+
+def insert_db(request):
+    fake = Faker()
+    fake.name()
+    for x in range(100):
+        Workers.objects.create(
+            first_name=fake.first_name(),
+            last_name=fake.last_name(),
+            email=fake.email(),
+            description=fake.text()
+        )
+    return HttpResponse("ok")
