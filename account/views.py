@@ -1,19 +1,19 @@
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect
+from django.core.serializers import serialize
+from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 
 from account.forms import LoginForm, RegisterForm
 from django.contrib.auth import login as login_user
 from django.contrib.auth import authenticate
 # from django.contrib.auth.forms import AuthenticationForm
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from faker import Faker
 from django.db.models import Q
 
-
-
 # Create your views here.
-from account.models import Workers
+from account.models import Workers, Company, Job
 
 
 def login(request):
@@ -66,20 +66,32 @@ def hello(request):
     context['query'] = query
     if query:
         context['result'] = Workers.objects.filter(
-            Q(first_name__icontains=query)
-            | Q(last_name__icontains=query)
-        )
+            (Q(first_name__icontains=query) | Q(last_name__icontains=query)) & Q(company__name__icontains=query))
     return render(request, "private.html", context)
 
 
 def insert_db(request):
     fake = Faker()
     fake.name()
-    for x in range(100):
-        Workers.objects.create(
-            first_name=fake.first_name(),
-            last_name=fake.last_name(),
-            email=fake.email(),
-            description=fake.text()
+    companies = Company.objects.all()
+    for company in companies:
+        job = Job.objects.create(
+            name=fake.job()
         )
+        company.job = job
+        company.save()
     return HttpResponse("ok")
+
+
+def detail_worker(request, slug):
+    context = {}
+    context['worker'] = get_object_or_404(Workers, slug=slug)
+    return render(request, "detail-worker.html", context)
+
+
+def test_view(request):
+    context = {}
+    data = serialize("json", Workers.objects.all())
+    # if request.is_ajax():
+    #     return JsonResponse(data, safe=False)
+    return HttpResponse(data, content_type="application/json")
