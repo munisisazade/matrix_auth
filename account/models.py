@@ -40,3 +40,18 @@ class Job(models.Model):
 
     def __str__(self):
         return "{}".format(self.name)
+
+
+class Picture(models.Model):
+    article = models.ForeignKey('Article', on_delete=models.CASCADE)
+    image = models.ImageField(upload_to="image/")
+
+    def __str__(self):
+        return "{}".format(self.image.name)
+
+
+class Article(models.Model):
+    name = models.CharField(max_length=255)
+
+    def __str__(self):
+        return "{}".format(self.name)

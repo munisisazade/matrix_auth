@@ -9,8 +9,13 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 </head>
 <body>
-<h1 id="demo">Change text form backend side</h1>
+<h1 id="demo">Change text form backend side {{ test }}</h1>
 <button class="mybutton">click me</button>
+<ul>
+    {% for job in object_list %}
+        <li>{{ job.name }}</li>
+    {% endfor %}
+</ul>
 <script>
     var title = $('#demo');
     $(".mybutton").click(function (e) {

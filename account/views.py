@@ -1,16 +1,19 @@
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.serializers import serialize
+from django.forms import all_valid
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 
-from account.forms import LoginForm, RegisterForm
+from account.forms import LoginForm, RegisterForm, ArticleForm, Pictureformset
 from django.contrib.auth import login as login_user
 from django.contrib.auth import authenticate
 # from django.contrib.auth.forms import AuthenticationForm
 from django.http import HttpResponse, JsonResponse
 from faker import Faker
 from django.db.models import Q
+from .generic import View, TemplateView
+from django.views import generic
 
 # Create your views here.
 from account.models import Workers, Company, Job
@@ -95,3 +98,51 @@ def test_view(request):
     # if request.is_ajax():
     #     return JsonResponse(data, safe=False)
     return HttpResponse(data, content_type="application/json")
+
+
+def article_form(request):
+    context = {}
+    if request.method == 'POST':
+        article = ArticleForm(request.POST)
+        picture_forms = Pictureformset(request.POST, request.FILES)
+        article_instance = ""
+        if article.is_valid():
+            article_instance = article.save()
+        if all_valid(picture_forms):
+            for pictureform in picture_forms:
+                picture = pictureform.save(commit=False)
+                picture.article = article_instance
+                picture.save()
+    context["form"] = ArticleForm()
+    context["formset"] = Pictureformset()
+    return render(request, "article_form.html", context)
+
+
+class MyView(generic.ListView):
+    model = Job
+    template_name = "test.html"
+    paginate_by = 5
+    # queryset =
+
+    def get_queryset(self):
+        qs = super(MyView, self).get_queryset()
+        query = self.request.GET.get('q', False)
+        if query and query != "":
+            return qs.filter(name__icontains=query)
+        else:
+            return qs
+
+
+class DetailView(generic.CreateView):
+    template_name = "test.html"
+    model = Job
+    context_object_name = "job"
+    
+
+
+
+def testview(request):
+    # code
+    return JsonResponse({
+        "message": "It works"
+    })

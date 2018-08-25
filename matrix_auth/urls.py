@@ -21,6 +21,7 @@ from django.conf.urls.static import static
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^', include("account.urls")),
+    url(r'^pages/', include('django.contrib.flatpages.urls')),
 ]
 
 # in development django built-in server serves static and media content
