@@ -1,4 +1,24 @@
 from django.db import models
+import random
+from django.utils import timezone
+
+
+def generate_salary():
+    return random.randint(500, 1500)
+
+
+class Todo(models.Model):
+    name = models.TextField()
+
+    def __str__(self):
+        return "{}".format(self.name)
+
+
+class Tester(models.Model):
+    name = models.CharField(max_length=255)
+
+    def __str__(self):
+        return "{}".format(self.name)
 
 
 # # Create your models here.
@@ -7,8 +27,11 @@ class Workers(models.Model):
     last_name = models.CharField(max_length=255)
     company = models.ForeignKey('Company', on_delete=models.CASCADE, null=True, blank=True)
     email = models.EmailField()
+    tester_list = models.ManyToManyField('Tester')
     description = models.TextField()
+    salary = models.IntegerField(default=generate_salary)
     slug = models.SlugField(null=True, blank=True)
+    publish_date = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         return "{}".format(self.get_full_name())

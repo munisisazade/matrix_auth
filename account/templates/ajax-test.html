@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Bootstrap Example</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+<body>
+
+<div class="container">
+    <br><br>
+    <div class="form-group">
+        <label for="email">Post:</label>
+        <textarea class="form-control" id="text" cols="30" rows="10"></textarea>
+    </div>
+    <div class="row">
+        <div class="col-md-9">
+
+        </div>
+        <div class="col-md-3 text-right">
+            <button type="button" class="btn btn-success publish-button text-right">Submit</button>
+        </div>
+    </div>
+
+</div>
+<div class="container">
+    <br><br><br>
+    <ul class="list-group">
+        {% for todo in todo_list %}
+            <li class="list-group-item">{{ todo.name }}</li>
+        {% endfor %}
+    </ul>
+</div>
+
+<script type="text/javascript">
+    // using jQuery
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    var csrftoken = getCookie('csrftoken');
+
+    function csrfSafeMethod(method) {
+        // these HTTP methods do not require CSRF protection
+        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    }
+
+    $.ajaxSetup({
+        beforeSend: function (xhr, settings) {
+            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                xhr.setRequestHeader("X-CSRFToken", csrftoken);
+            }
+        }
+    });
+    var ajax_time = true;
+    $(document).ready(function (e) {
+        $('.publish-button').click(function (e) {
+
+            var text = $('#text').val();
+            if (text !== "") {
+                var form = new FormData();
+                form.append('text', text);
+                if (ajax_time) {
+                    ajax_time = false;
+                    $.ajax({
+                        type: "POST",
+                        processData: false,
+                        contentType: false,
+                        data: form,
+                        success: function (data) {
+                            $('#text').val("");
+                            $('.list-group').html(data);
+                            ajax_time = true;
+                            console.log("ikinci");
+                        },
+                        error: function (xhr, errmsg, err) {
+                            console.log(xhr, errmsg, err);
+                        } // end error: function
+                    });
+                    console.log("birinci");
+                }
+            }
+            else {
+                alert("cannot be empty");
+            }
+
+        });
+    });
+</script>
+</body>
+</html>

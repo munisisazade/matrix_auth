@@ -1,9 +1,12 @@
+from time import sleep
+
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.serializers import serialize
 from django.forms import all_valid
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
+from django.utils import timezone
 
 from account.forms import LoginForm, RegisterForm, ArticleForm, Pictureformset
 from django.contrib.auth import login as login_user
@@ -16,7 +19,7 @@ from .generic import View, TemplateView
 from django.views import generic
 
 # Create your views here.
-from account.models import Workers, Company, Job
+from account.models import Workers, Company, Job, Tester, Todo
 
 
 def login(request):
@@ -67,9 +70,18 @@ def hello(request):
     context = {}
     query = request.GET.get('q', False)
     context['query'] = query
+    today = timezone.now()
+    # fake = Faker()
+    # a = 50
+    # for index, worker in enumerate(Workers.objects.all().order_by("?")):
+    #     worker.tester_list.add(Tester.objects.all().order_by("?").last())
+    #     worker.save()
+    #     if a == index:
+    #         break
     if query:
         context['result'] = Workers.objects.filter(
-            (Q(first_name__icontains=query) | Q(last_name__icontains=query)) & Q(company__name__icontains=query))
+            tester_list__name__icontains=query
+        )
     return render(request, "private.html", context)
 
 
@@ -122,6 +134,7 @@ class MyView(generic.ListView):
     model = Job
     template_name = "test.html"
     paginate_by = 5
+
     # queryset =
 
     def get_queryset(self):
@@ -137,8 +150,6 @@ class DetailView(generic.CreateView):
     template_name = "test.html"
     model = Job
     context_object_name = "job"
-    
-
 
 
 def testview(request):
@@ -146,3 +157,33 @@ def testview(request):
     return JsonResponse({
         "message": "It works"
     })
+
+
+class AjaxView(generic.TemplateView):
+    template_name = "ajax-test.html"
+    ajax_template = "partials/list.html"
+
+    def get_context_data(self, **kwargs):
+        context = {}
+        context['todo_list'] = Todo.objects.all()
+        # Todo.objects.all().delete()
+        return context
+
+    def post(self, request,*args, **kwargs):
+        if request.is_ajax():
+            text = request.POST.get('text')
+            if text != "":
+                context = {}
+                obj = Todo.objects.create(
+                    name=text
+                )
+                context['todo_list'] = Todo.objects.all().order_by('name')
+                return render(request, self.ajax_template, context)
+            else:
+                return JsonResponse({
+                    "message": "FAIL"
+                })
+        else:
+            return JsonResponse({
+                "status": "ok"
+            })
