@@ -187,3 +187,8 @@ class AjaxView(generic.TemplateView):
             return JsonResponse({
                 "status": "ok"
             })
+
+
+class TestingListView(generic.ListView):
+    model = Workers
+    template_name = "example.html"

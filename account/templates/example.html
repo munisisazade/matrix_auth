@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load common %}
+    <title>Login</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+<body>
+<div class="container" style="margin-top: 30px;">
+    <div class="list-group">
+        <div class="row">
+            {#            <div class="col-md-6 list-group-item">asdmkamsdlk | ></div>#}
+            {#            <div class="col-md-6 list-group-item">asdasdasd | ></div>#}
+            {#            <div class="col-md-6 list-group-item">asdmkamsdlk | <</div>#}
+            {#            <div class="col-md-6 list-group-item">asdasdasd | <</div>#}
+            {#            <div class="col-md-6 list-group-item">asdmkamsdlk | ></div>#}
+            {#            <div class="col-md-6 list-group-item">asdasdasd| ></div>#}
+            {% for item in object_list %}
+                <div class="col-md-6 list-group-item">
+                    {% if forloop.first %}
+                        {{ forloop.counter }}{{ item.company }}  | >
+                    {% else %}
+                        {{ forloop.counter }}{{ item.company }}
+                        {% if forloop.counter|divisibleby:"2" %}
+                             {% if forloop.counter|add:"1"|count_check %}
+                                 | >
+                            {% else %}
+                                 | <
+                            {% endif %}
+
+                        {% else %}
+                            {% if forloop.counter|count_check %}
+                                | <
+                            {% else %}
+                                | >
+                            {% endif %}
+                        {% endif %}
+                    {% endif %}
+
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+</body>
+</html>
